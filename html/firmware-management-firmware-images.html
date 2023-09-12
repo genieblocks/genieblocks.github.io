@@ -185,7 +185,7 @@
               <td>{{ ota.fw_version }}</td>
               <td>{{ ota.model }}</td>
               <td>{{ getLocaleDateString(ota.upload_timestamp) }}</td>
-              <td><button class="nav-link btn btn-sm btn-success white" type="button" data-toggle="modal" data-target="#iconModal">Start OTA</button></td>
+              <td><button class="nav-link btn btn-sm btn-success white" type="button" v-on:click="createOtaJob(ota)">Start OTA</button></td>
             </tr>
           </tbody>
         </table>
@@ -356,6 +356,21 @@
               reader.onload = () => resolve(reader.result.replace('data:', '').replace(/^.+,/, ''));
               reader.onerror = (error) => reject(error);
             });
+        },
+        createOtaJob(ota) {
+          console.log(ota);
+          axios.post('https://api.rainmaker.espressif.com/v1/admin/otajob', {
+            ota_job_name: ota.image_name + ' ' + ota.fw_version,
+            groups: ["FFFF-FFFF"],
+            ota_image_id: ota.ota_image_id
+          })
+          .then(function (response) {
+            console.log(response);
+            location.replace('/html/firmware-management-ota-jobs.html');
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
         }
       }
     }).mount('#app');
