@@ -189,48 +189,47 @@
             </tr>
           </tbody>
         </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal -->
-  <div class="modal fade text-left" id="iconModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2"
-    aria-hidden="true">
-    <div class="modal-dialog modal-sm" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title text-bold-600" id="myModalLabel2"><i class="fa fa-road2"></i> Add Image</h4>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <form>
-          <div class="modal-body">
-            <fieldset class="form-group floating-label-form-group">
-              <label for="name">Image Name *</label>
-              <input type="text" class="form-control" id="imagename" placeholder="Enter image name">
-            </fieldset>
-            <fieldset class="form-group floating-label-form-group">
-              <label for="type">Type *</label>
-              <input type="text" class="form-control" id="imagetype" placeholder="Enter image type">
-            </fieldset>
-            <fieldset class="form-group floating-label-form-group">
-              <label for="type">Select File</label>
-              <div class="custom-file">
-                <input type="file" class="custom-file-input" id="inputGroupFile01">
-                <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+        <!-- Modal -->
+        <div class="modal fade text-left" id="iconModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2"
+          aria-hidden="true">
+          <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title text-bold-600" id="myModalLabel2"><i class="fa fa-road2"></i> Add Image</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
               </div>
-            </fieldset>
+              <form>
+                <div class="modal-body">
+                  <fieldset class="form-group floating-label-form-group">
+                    <label for="name">Image Name *</label>
+                    <input type="text" class="form-control" id="imagename" placeholder="Enter image name" v-model="state.image_name">
+                  </fieldset>
+                  <fieldset class="form-group floating-label-form-group">
+                    <label for="type">Type *</label>
+                    <input type="text" class="form-control" id="imagetype" placeholder="Enter image type" v-model="state.image_type">
+                  </fieldset>
+                  <fieldset class="form-group floating-label-form-group">
+                    <label for="type">Select Image</label>
+                    <div class="custom-file">
+                      <input type="file" class="custom-file-input" id="inputGroupFile01" v-on:change="uploadImage">
+                      <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                    </div>
+                  </fieldset>
+                </div>
+                <div class="modal-footer">
+                  <input type="reset" class="btn btn-light btn-lg" data-dismiss="modal" value="Close">
+                  <input type="button" class="btn btn-genie white btn-lg" value="Add Image" v-on:click="addImage">
+                </div>
+              </form>
+            </div>
           </div>
-          <div class="modal-footer">
-            <input type="reset" class="btn btn-light btn-lg" data-dismiss="modal" value="close">
-            <input type="submit" class="btn btn-genie white btn-lg" value="Add Image">
-          </div>
-        </form>
+        </div>
+        <!-- ////////////////////////////////////////////////////////////////////////////-->
       </div>
     </div>
   </div>
-  <!-- ////////////////////////////////////////////////////////////////////////////-->
 
   <footer class="footer footer-static footer-light navbar-border">
     <p class="clearfix blue-grey lighten-2 text-sm-center mb-0 px-2">
@@ -271,7 +270,10 @@
 
     const state = reactive({
       access_token: null,
-      ota_images: []
+      ota_images: [],
+      image_name: '',
+      image_type: '',
+      image_file: ''
     });
 
     createApp({
@@ -326,6 +328,34 @@
         },
         getLocaleDateString(timestamp) {
           return new Date(timestamp * 1000).toLocaleString(navigator.language, "short");
+        },
+        addImage() {
+          console.log(state);
+          axios.post('https://api.rainmaker.espressif.com/v1/admin/otaimage', {
+            image_name: state.image_name,
+            type: state.image_type,
+            base64_fwimage: state.image_file
+          })
+          .then(function (response) {
+            console.log(response);
+            location.reload();
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+        },
+        async uploadImage (event) {
+          console.log(event);
+          state.image_file = await this.getBase64(event.target.files[0]);
+          console.log(state.image_file);
+        },
+        getBase64(file) {
+          return new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.readAsDataURL(file);
+              reader.onload = () => resolve(reader.result.replace('data:', '').replace(/^.+,/, ''));
+              reader.onerror = (error) => reject(error);
+            });
         }
       }
     }).mount('#app');
