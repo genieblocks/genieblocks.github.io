@@ -170,26 +170,26 @@
           aria-describedby="DataTables_Table_0_info">
           <thead>
             <tr>
-              <th data-orderable="false"></th>
+              <!-- <th data-orderable="false"></th> -->
+              <th data-orderable="false">Status</th>
               <th data-orderable="false">Device ID</th>
               <th data-orderable="false">Name</th>
               <th data-orderable="false">Version</th>
               <th data-orderable="false">Type</th>
               <th data-orderable="false">Model</th>
-              <th data-orderable="false">Status</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="node in state.nodes">
-              <td class="text-center">
+              <!-- <td class="text-center">
                 <input type="checkbox">
-              </td>
+              </td> -->
+              <td>{{ node.node_status }}</td>
               <td>{{ node.node_id }}</td>
               <td>{{ node.name }}</td>
               <td>{{ node.fw_version }}</td>
               <td>{{ node.type }}</td>
               <td>{{ node.model }}</td>
-              <td>{{ node.node_status }}</td>
             </tr>
           </tbody>
         </table>
