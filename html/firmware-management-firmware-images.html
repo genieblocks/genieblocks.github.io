@@ -360,9 +360,10 @@
         createOtaJob(ota) {
           console.log(ota);
           axios.post('https://api.rainmaker.espressif.com/v1/admin/otajob', {
-            ota_job_name: ota.image_name + ' ' + ota.fw_version,
+            ota_job_name: ota.image_name + ' ' + Math.round(new Date()/1000),
             groups: ["FFFF-FFFF"],
-            ota_image_id: ota.ota_image_id
+            ota_image_id: ota.ota_image_id,
+            force_push: 'true'
           })
           .then(function (response) {
             console.log(response);
